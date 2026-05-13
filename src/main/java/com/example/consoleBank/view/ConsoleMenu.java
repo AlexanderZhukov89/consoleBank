@@ -13,17 +13,17 @@ public class ConsoleMenu implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        showMainManu();
+        showMainMenu();
     }
 
-    private void showMainManu() {
+    private void showMainMenu() {
 
         while (true){
             System.out.println("Нажмите 1");
             System.out.println("Нажмите 2");
             System.out.println("Нажмите 3, что бы Выйти");
 
-            int choice = scanner.nextInt();
+            int choice = getIntInput(scanner);
 
             switch (choice){
                 case 1 -> System.out.println("Нажали 1");
@@ -37,5 +37,21 @@ public class ConsoleMenu implements CommandLineRunner {
 
         }
 
+    }
+
+    private int getIntInput(Scanner scanner) {
+
+        while (true) {
+
+
+            String input = scanner.nextLine();
+
+            try {
+                return Integer.parseInt(input.trim());
+            } catch (NumberFormatException e) {
+                System.out.println("Указано неверное значение");
+            }
+
+        }
     }
 }
