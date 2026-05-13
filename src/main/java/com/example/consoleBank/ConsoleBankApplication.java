@@ -8,6 +8,7 @@ public class ConsoleBankApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(ConsoleBankApplication.class, args);
+		// test
 	}
 
 }
