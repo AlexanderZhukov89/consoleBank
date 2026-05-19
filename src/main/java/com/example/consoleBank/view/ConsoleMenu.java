@@ -18,26 +18,64 @@ public class ConsoleMenu implements CommandLineRunner {
 
     private void showMainMenu() {
 
-        while (true){
-            System.out.println("Нажмите 1");
-            System.out.println("Нажмите 2");
-            System.out.println("Нажмите 3, что бы Выйти");
 
-            int choice = getIntInput(scanner);
+        System.out.println("ДОБРО ПОЖАЛОВАТЬ!");
+        System.out.println("1. Войти");
+        System.out.println("2. Зарегистрироваться");
+        System.out.println("3. Выйти");
 
-            switch (choice){
-                case 1 -> System.out.println("Нажали 1");
-                case 2 -> System.out.println("Нажали 2");
-                case 3 -> {
-                    System.out.println("Нажали 3");
-                    System.exit(0);
-                }
-                default -> System.out.println("Неверный выбор");
+        int choice = getIntInput(scanner);
+
+        switch (choice) {
+            case 1 -> showLoginMenu();
+            case 2 -> showRegistrationMenu();
+            case 3 -> {
+                System.out.println("Нажали 3");
+                System.exit(0);
             }
-
+            default -> {
+                System.out.println("Неверный выбор");
+                showMainMenu();
+            }
         }
 
+
     }
+
+    private void showLoginMenu() {
+
+        System.out.println("Укажите Email");
+        System.out.println("Или нажмите 1, что вернуться в главное меню");
+
+        String choice = scanner.nextLine();
+
+        if (choice.equals("1")) {
+            showMainMenu();
+        } else {
+            System.out.println("Неверный выбор");
+            showLoginMenu();
+        }
+
+
+    }
+
+    private void showRegistrationMenu() {
+
+        System.out.println("Укажите Email");
+        System.out.println("Или нажмите 1, что вернуться в главное меню");
+
+        String choice = scanner.nextLine();
+
+        if (choice.equals("1")) {
+            showMainMenu();
+        } else {
+            System.out.println("Неверный выбор");
+            showRegistrationMenu();
+        }
+
+
+    }
+
 
     private int getIntInput(Scanner scanner) {
 
@@ -54,4 +92,5 @@ public class ConsoleMenu implements CommandLineRunner {
 
         }
     }
+
 }
