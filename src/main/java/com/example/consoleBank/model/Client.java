@@ -3,6 +3,8 @@ package com.example.consoleBank.model;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.util.regex.Pattern;
+
 @Entity
 @Table(name = "clients")
 @Data
@@ -16,6 +18,34 @@ public class Client {
     private String email;
     private String telNumber;
 
+    static private final Pattern emailPattern = Pattern.compile("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$");
+
     public Client() {
+    }
+
+    static public boolean isValidEmail(String email) {
+        return emailPattern.matcher(email).matches();
+    }
+
+    public boolean isValid() {
+
+        boolean isValid = true;
+
+        if(name == null || name.length() < 2) {
+            System.out.println("Неверно указано имя");
+            isValid = false;
+        }
+
+        if(email == null || !isValidEmail(email)) {
+            System.out.println("Неверный формат Емейла");
+            isValid = false;
+        }
+
+        if(telNumber == null || telNumber.isEmpty()) {
+            System.out.println("Не указан номер телефона");
+            isValid = false;
+        }
+
+        return isValid;
     }
 }
