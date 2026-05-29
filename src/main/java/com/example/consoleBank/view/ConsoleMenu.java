@@ -15,6 +15,9 @@ public class ConsoleMenu implements CommandLineRunner {
     @Autowired
     private AdministratorMenu administratorMenu;
 
+    @Autowired
+    private ClientMenu clientMenu;
+
     @Override
     public void run(@Nonnull String... args) {
         showMainMenu();
@@ -33,7 +36,7 @@ public class ConsoleMenu implements CommandLineRunner {
 
             switch (choice) {
                 case 1 -> administratorMenu.showAdministratorMenu();
-                //case 2 -> showRegistrationMenu();
+                case 2 -> clientMenu.showClientMenu();
                 case 3 -> {
                     System.out.println("До свидания!");
                     System.exit(0);
@@ -43,32 +46,6 @@ public class ConsoleMenu implements CommandLineRunner {
         }
 
     }
-
-//    private void showRegistrationMenu() {
-//
-//        while (true) {
-//            System.out.println("Укажите Email");
-//            System.out.println("Или нажмите 1, что бы вернуться в главное меню");
-//
-//            String choice = scanner.nextLine().trim();
-//
-//            if (choice.equals("1")) {
-//                return;
-//            } else {
-//                if (Client.isValidEmail(choice)){
-//                    Client newClient = new Client();
-//                    newClient.setEmail(choice);
-//
-//
-//
-//                } else {
-//                    System.out.println("Неверный выбор");
-//                }
-//            }
-//        }
-//
-//    }
-
 
     private int getIntInput() {
 

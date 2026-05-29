@@ -25,6 +25,7 @@ public class ClientService {
         return clientRepository.findByTelNumber(telNumber);
     }
 
+    @Transactional
     public Client create(Client client) {
 
         if(isPhoneExists(client.getTelNumber())) {
@@ -46,6 +47,11 @@ public class ClientService {
                 .orElseThrow(() -> new IllegalStateException("Клиент с таким ID не найден"));
 
 
+        String updateTelNumber = updateClient.getTelNumber();
+        if(updateTelNumber != null) {
+            findClient.setTelNumber(updateTelNumber);
+        }
+
         String updateName = updateClient.getName();
         if(updateName != null) {
             findClient.setName(updateName);
@@ -56,10 +62,7 @@ public class ClientService {
             findClient.setEmail(updateEmail);
         }
 
-        String updateTelNumber = updateClient.getTelNumber();
-        if(updateTelNumber != null) {
-            findClient.setTelNumber(updateTelNumber);
-        }
+
 
         if(findClient.isValid()) {
             clientRepository.save(findClient);

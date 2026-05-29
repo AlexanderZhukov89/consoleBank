@@ -3,6 +3,8 @@ package com.example.consoleBank.model;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Pattern;
 
 @Entity
@@ -19,6 +21,9 @@ public class Client {
 
     @Column(name = "tel_number")
     private String telNumber;
+
+    @OneToMany(mappedBy = "client", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<Account> accounts = new ArrayList<>();
 
     static private final Pattern emailPattern = Pattern.compile("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$");
     static private final Pattern telNumberPattern = Pattern.compile("^8\\d{10}$");
