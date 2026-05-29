@@ -21,19 +21,21 @@ public class ClientService {
         return clientRepository.findAll();
     }
 
+    public Optional<Client> findByTelNumber(String telNumber) {
+        return clientRepository.findByTelNumber(telNumber);
+    }
+
     public Client create(Client client) {
 
-        Optional<Client> optionalClient = clientRepository.findByEmail(client.getEmail());
-
-        if(optionalClient.isPresent()) {
-            throw new IllegalStateException("Клиент с таким Емейлом уже существует");
+        if(isPhoneExists(client.getTelNumber())) {
+            throw new IllegalStateException("Клиент с таким телефоном уже существует");
         }
 
-        if(!client.isValid()) {
+        if(client.isValid()) {
+            return clientRepository.save(client);
+        } else {
             throw new IllegalStateException("Некорректно заполнен");
         }
-
-        return clientRepository.save(client);
 
     }
 
@@ -59,11 +61,28 @@ public class ClientService {
             findClient.setTelNumber(updateTelNumber);
         }
 
-        if(!findClient.isValid()) {
+        if(findClient.isValid()) {
+            clientRepository.save(findClient);
+        } else {
             throw new IllegalStateException("Некорректно заполнен");
         }
 
-        clientRepository.save(findClient);
+    }
+
+    public void delete(Client deleteClient) {
+
+        Client findClient = clientRepository.findById(deleteClient.getId())
+                .orElseThrow(() -> new IllegalStateException("Клиент с таким ID не найден"));
+
+        clientRepository.delete(findClient);
+
+    }
+
+    public boolean isPhoneExists(String telNumber) {
+
+        Optional<Client> optionalClient = clientRepository.findByTelNumber(telNumber);
+
+        return optionalClient.isPresent();
 
     }
 

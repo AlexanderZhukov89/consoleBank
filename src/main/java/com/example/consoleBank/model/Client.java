@@ -16,11 +16,18 @@ public class Client {
 
     private String name;
     private String email;
+
+    @Column(name = "tel_number")
     private String telNumber;
 
     static private final Pattern emailPattern = Pattern.compile("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$");
+    static private final Pattern telNumberPattern = Pattern.compile("^8\\d{10}$");
 
     public Client() {
+    }
+
+    static public boolean isValidTelNumber(String telNumber) {
+        return telNumberPattern.matcher(telNumber).matches();
     }
 
     static public boolean isValidEmail(String email) {
@@ -36,13 +43,13 @@ public class Client {
             isValid = false;
         }
 
-        if(email == null || !isValidEmail(email)) {
-            System.out.println("Неверный формат Емейла");
+        if(telNumber == null || !isValidTelNumber(telNumber)) {
+            System.out.println("Не указан номер телефона");
             isValid = false;
         }
 
-        if(telNumber == null || telNumber.isEmpty()) {
-            System.out.println("Не указан номер телефона");
+        if(email == null || !isValidEmail(email)) {
+            System.out.println("Неверный формат Емейла");
             isValid = false;
         }
 
