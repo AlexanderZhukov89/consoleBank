@@ -1,6 +1,8 @@
 package com.example.consoleBank.service;
 
+import com.example.consoleBank.model.Account;
 import com.example.consoleBank.model.Client;
+import com.example.consoleBank.repository.AccountRepository;
 import com.example.consoleBank.repository.ClientRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
@@ -12,9 +14,11 @@ import java.util.Optional;
 public class ClientService {
 
     private final ClientRepository clientRepository;
+    private final AccountRepository accountRepository;
 
-    public ClientService(ClientRepository clientRepository) {
+    public ClientService(ClientRepository clientRepository, AccountRepository accountRepository) {
         this.clientRepository = clientRepository;
+        this.accountRepository = accountRepository;
     }
 
     public List<Client> findAll() {
@@ -76,6 +80,13 @@ public class ClientService {
 
         Client findClient = clientRepository.findById(deleteClient.getId())
                 .orElseThrow(() -> new IllegalStateException("Клиент с таким ID не найден"));
+
+
+        List<Account> foundClients = accountRepository.findByClientAndActiveTrue(deleteClient);
+        if(!foundClients.isEmpty()) {
+            throw new IllegalStateException("У клиента есть незакрытые счета, удаление невозможно");
+        }
+
 
         clientRepository.delete(findClient);
 

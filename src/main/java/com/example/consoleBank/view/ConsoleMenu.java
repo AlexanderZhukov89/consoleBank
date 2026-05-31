@@ -1,22 +1,21 @@
 package com.example.consoleBank.view;
 
 import jakarta.annotation.Nonnull;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 import java.util.Scanner;
 
 @Component
+@RequiredArgsConstructor
 public class ConsoleMenu implements CommandLineRunner {
 
     private final Scanner scanner = new Scanner(System.in);
 
-    @Autowired
-    private AdministratorMenu administratorMenu;
+    private final AdministratorMenu administratorMenu;
+    private final ClientMenu clientMenu;
 
-    @Autowired
-    private ClientMenu clientMenu;
 
     @Override
     public void run(@Nonnull String... args) {

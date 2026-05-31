@@ -2,6 +2,7 @@ package com.example.consoleBank.view;
 
 import com.example.consoleBank.model.Client;
 import com.example.consoleBank.service.ClientService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 
@@ -10,6 +11,7 @@ import java.util.Scanner;
 import java.util.function.Predicate;
 
 @Component
+@RequiredArgsConstructor
 public class AdministratorMenu {
 
 
@@ -17,9 +19,6 @@ public class AdministratorMenu {
 
     private final Scanner scanner = new Scanner(System.in);
 
-    public AdministratorMenu(ClientService clientService) {
-        this.clientService = clientService;
-    }
 
     public void showAdministratorMenu() {
 

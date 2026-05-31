@@ -11,6 +11,9 @@ import java.time.LocalDateTime;
 @Data
 public class Account {
 
+    @Version
+    private Long version;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -25,6 +28,8 @@ public class Account {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
+    private boolean active = true;
+
     public Account() {
         this.createdAt = LocalDateTime.now();
     }
@@ -34,10 +39,4 @@ public class Account {
         this.createdAt = LocalDateTime.now();
     }
 
-    @PrePersist
-    private void generateNumber() {
-        if(this.number == null) {
-            this.number = System.currentTimeMillis() % 1_000_000_000_000L;
-        }
-    }
 }

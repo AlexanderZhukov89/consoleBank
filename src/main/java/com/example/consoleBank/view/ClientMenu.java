@@ -4,23 +4,22 @@ import com.example.consoleBank.model.Account;
 import com.example.consoleBank.model.Client;
 import com.example.consoleBank.service.AccountService;
 import com.example.consoleBank.service.ClientService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 import java.util.Scanner;
 
 @Component
+@RequiredArgsConstructor
 public class ClientMenu {
 
     private final ClientService clientService;
     private final AccountService accountService;
+    private final AccountMenu accountMenu;
 
     private final Scanner scanner = new Scanner(System.in);
 
-    public ClientMenu(ClientService clientService, AccountService accountService) {
-        this.clientService = clientService;
-        this.accountService = accountService;
-    }
 
     public void showClientMenu() {
 
@@ -35,17 +34,15 @@ public class ClientMenu {
         while (true) {
 
             System.out.println("1. Создать счёт");
-            System.out.println("2. Удалить счёт");
-            System.out.println("3. Открыть меню счёта");
-            System.out.println("4. Вернуться в главное меню");
+            System.out.println("2. Открыть меню счёта");
+            System.out.println("3. Вернуться в главное меню");
 
             int choice = getIntInput();
 
             switch (choice) {
                 case 1 -> createAccount(thisClient);
-//                case 2 -> updateClient();
-//                case 3 -> deleteClient();
-                case 4 -> {
+                case 2 -> accountMenu.showMainAccountMenu(thisClient);
+                case 3 -> {
                     return;
                 }
                 default -> System.out.println("Неверный выбор");
@@ -101,7 +98,6 @@ public class ClientMenu {
 
 
     }
-
 
     private int getIntInput() {
 
