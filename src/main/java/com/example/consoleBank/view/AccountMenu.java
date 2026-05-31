@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Optional;
 import java.util.Scanner;
 
 @Component
@@ -38,19 +37,17 @@ public class AccountMenu {
         int choice = getIntInput();
 
         if(choice > 0 && choice < i) {
-            Account thisAccount = accountList.get(choice-1);
 
-            showAccountMenu(thisAccount);
+            Account thisAccount = accountList.get(choice - 1);
+            showAccountMenu(thisAccount, thisClient);
 
-        } else if (choice == i) {
-            return;
-        } else {
+        } else if (choice != i){
             System.out.println("Неверный выбор");
         }
 
     }
 
-    public void showAccountMenu(Account thisAccount) {
+    public void showAccountMenu(Account thisAccount, Client thisClient) {
 
         while (true) {
 
@@ -58,7 +55,7 @@ public class AccountMenu {
             System.out.println("1. Пополнить счет");
             System.out.println("2. Снять средства");
             System.out.println("3. Перевод между счетами");
-            System.out.println("4. Перевести на счет другого клиента");
+            System.out.println("4. Перевод по номеру счета");
             System.out.println("5. Удалить счет");
             System.out.println("6. Вернуться в главное меню");
 
@@ -68,6 +65,10 @@ public class AccountMenu {
                 showDepositWithdrawMenu(thisAccount, "deposit");
             } else if (choice == 2) {
                 showDepositWithdrawMenu(thisAccount, "withdraw");
+            } else if (choice == 3) {
+                showInnerTransferMenu(thisAccount, thisClient);
+            } else if (choice == 4) {
+                showTransferMenu(thisAccount);
             } else if (choice == 5) {
                 boolean accountDeleted = deleteAccount(thisAccount);
                 if (accountDeleted) {
@@ -129,6 +130,108 @@ public class AccountMenu {
 
     }
 
+    private void showInnerTransferMenu(Account thisAccount, Client thisClient) {
+
+        List<Account> accountList = accountService.getAllByClient(thisClient);
+
+        System.out.println("===ВЫБЕРИТЕ СЧЕТ===");
+
+
+        Integer i = 1;
+        for (Account account: accountList) {
+
+            if(thisAccount.getNumber().equals(account.getNumber())){
+                continue;
+            }
+            System.out.println(i + ". " + account.getNumber());
+
+            i++;
+        }
+
+        System.out.println(i + ". Назад");
+
+        int choice = getIntInput();
+
+        if(choice > 0 && choice < i) {
+
+            Account corespondentAccount = accountList.get(choice - 1);
+
+            System.out.println("Введите сумму");
+
+            String amountStr = scanner.nextLine().trim();
+            BigDecimal depositWithdrawAmount;
+
+            try {
+                depositWithdrawAmount = new BigDecimal(amountStr);
+            } catch (NumberFormatException e) {
+                System.out.println("Неверный формат суммы");
+                return;
+            }
+
+            if(depositWithdrawAmount.compareTo(BigDecimal.ZERO) <= 0) {
+                System.out.println("Сумма должна быть больше 0");
+                return;
+            }
+
+            try {
+                accountService.transfer(thisAccount, corespondentAccount, depositWithdrawAmount);
+                System.out.println("Перевод успешно выполнен");
+            } catch (IllegalStateException e) {
+                System.out.println("Не удалось выполнить перевод средств. " + e.getMessage());
+            }
+
+
+        } else if (choice != i){
+            System.out.println("Неверный выбор");
+        }
+
+
+    }
+
+    private void showTransferMenu(Account thisAccount) {
+
+        System.out.println("Укажите номер счета");
+        System.out.println("Или введите Назад, для выхода в предыдущее меню");
+
+        Long number = getLongInput();
+
+        Account corespondentAccount;
+
+        try {
+            corespondentAccount = accountService.getByNumber(number);
+        } catch (IllegalStateException e) {
+            System.out.println(e.getMessage());
+            return;
+        }
+
+        System.out.println("Введите сумму");
+
+        String amountStr = scanner.nextLine().trim();
+        BigDecimal depositWithdrawAmount;
+
+        try {
+            depositWithdrawAmount = new BigDecimal(amountStr);
+        } catch (NumberFormatException e) {
+            System.out.println("Неверный формат суммы");
+            return;
+        }
+
+        if (depositWithdrawAmount.compareTo(BigDecimal.ZERO) <= 0) {
+            System.out.println("Сумма должна быть больше 0");
+            return;
+        }
+
+        try {
+            accountService.transfer(thisAccount, corespondentAccount, depositWithdrawAmount);
+            System.out.println("Перевод успешно выполнен");
+        } catch (IllegalStateException e) {
+            System.out.println("Не удалось выполнить перевод средств. " + e.getMessage());
+        }
+
+
+
+    }
+
     private boolean deleteAccount(Account thisAccount) {
 
         if(thisAccount.getBalance().doubleValue() > 0) {
@@ -171,6 +274,21 @@ public class AccountMenu {
 
             try {
                 return Integer.parseInt(input.trim());
+            } catch (NumberFormatException e) {
+                System.out.println("Указано неверное значение");
+            }
+
+        }
+    }
+
+    private Long getLongInput() {
+
+        while (true) {
+
+            String input = scanner.nextLine();
+
+            try {
+                return Long.parseLong(input.trim());
             } catch (NumberFormatException e) {
                 System.out.println("Указано неверное значение");
             }

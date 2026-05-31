@@ -31,7 +31,7 @@ public class AccountService {
     public void update(Account updateAccount) {
 
         Account findAccount = accountRepository.findById(updateAccount.getId())
-                .orElseThrow(() -> new IllegalStateException("Аккаунт с таким ID не найден"));
+                .orElseThrow(() -> new IllegalStateException("Счет с таким ID не найден"));
 
 
         BigDecimal updateBalance = updateAccount.getBalance();
@@ -46,19 +46,50 @@ public class AccountService {
     public void delete(Account account) {
 
         Account findAccount = accountRepository.findById(account.getId())
-                .orElseThrow(() -> new IllegalStateException("Счёт с таким ID не найден"));
+                .orElseThrow(() -> new IllegalStateException("Счет с таким ID не найден"));
 
         BigDecimal accountBalance = findAccount.getBalance();
 
         if (accountBalance.doubleValue() > 0){
-            throw new IllegalStateException("Счёт имеет на нулевой баланс. Удаление невозможно");
+            throw new IllegalStateException("Счет имеет на нулевой баланс. Удаление невозможно");
         }
 
         accountRepository.delete(findAccount);
     }
 
+    @Transactional
+    public void transfer(Account thisAccount, Account corespondentAccount, BigDecimal amount) {
+
+        Account foundAccount = accountRepository.findById(thisAccount.getId())
+                .orElseThrow(() -> new IllegalStateException("Счет отправителя не найден"));
+        Account foundCorespondentAccount = accountRepository.findById(corespondentAccount.getId())
+                .orElseThrow(() -> new IllegalStateException("Счет получателя не найден"));
+
+
+        if (foundAccount.getBalance().compareTo(amount) < 0) {
+            System.out.println("Недостаточно средств");
+            return;
+        }
+
+
+        foundAccount.setBalance(foundAccount.getBalance().subtract(amount));
+        foundCorespondentAccount.setBalance(foundCorespondentAccount.getBalance().add(amount));
+
+        accountRepository.save(foundAccount);
+        accountRepository.save(foundCorespondentAccount);
+
+        thisAccount.setBalance(foundAccount.getBalance());
+        corespondentAccount.setBalance(foundCorespondentAccount.getBalance());
+    }
+
     public List<Account> getAllByClient(Client client) {
         return accountRepository.findByClientAndActiveTrue(client);
+    }
+
+    public Account getByNumber(Long number) {
+        return accountRepository.findByNumber(number)
+                .orElseThrow(() -> new IllegalStateException("Счет с таким номером не найден"));
+
     }
 
     private Long getNewAccountNumber() {

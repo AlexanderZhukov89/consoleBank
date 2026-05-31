@@ -167,9 +167,7 @@ public class AdministratorMenu {
                 System.out.println("Не удалось удалить клиента. " + e.getMessage());
             }
 
-        } else if (choice == 2) {
-            return;
-        } else {
+        } else if (choice != 2){
             System.out.println("Неверный выбор");
         }
 
