@@ -39,6 +39,17 @@ public class Client {
         return emailPattern.matcher(email).matches();
     }
 
+    @Override
+    public String toString() {
+        return "Client{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", email='" + email + '\'' +
+                ", telNumber='" + telNumber + '\'' +
+                ", accounts=" + accounts +
+                '}';
+    }
+
     public boolean isValid() {
 
         boolean isValid = true;

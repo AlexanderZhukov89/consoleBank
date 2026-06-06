@@ -2,7 +2,10 @@ package com.example.consoleBank.service;
 
 import com.example.consoleBank.model.Account;
 import com.example.consoleBank.model.Client;
+import com.example.consoleBank.model.OperationType;
+import com.example.consoleBank.model.Transaction;
 import com.example.consoleBank.repository.AccountRepository;
+import com.example.consoleBank.repository.TransactionRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -14,9 +17,11 @@ import java.util.Optional;
 public class AccountService {
 
     private final AccountRepository accountRepository;
+    private final TransactionRepository transactionRepository;
 
-    public AccountService(AccountRepository accountRepository) {
+    public AccountService(AccountRepository accountRepository, TransactionRepository transactionRepository) {
         this.accountRepository = accountRepository;
+        this.transactionRepository = transactionRepository;
     }
 
     @Transactional
@@ -43,6 +48,7 @@ public class AccountService {
 
     }
 
+    @Transactional
     public void delete(Account account) {
 
         Account findAccount = accountRepository.findById(account.getId())
@@ -62,24 +68,40 @@ public class AccountService {
 
         Account foundAccount = accountRepository.findById(thisAccount.getId())
                 .orElseThrow(() -> new IllegalStateException("Счет отправителя не найден"));
-        Account foundCorespondentAccount = accountRepository.findById(corespondentAccount.getId())
+        Account foundCorrespondentAccount = accountRepository.findById(corespondentAccount.getId())
                 .orElseThrow(() -> new IllegalStateException("Счет получателя не найден"));
 
 
         if (foundAccount.getBalance().compareTo(amount) < 0) {
-            System.out.println("Недостаточно средств");
-            return;
+            throw new IllegalStateException("Недостаточно средств");
         }
 
-
         foundAccount.setBalance(foundAccount.getBalance().subtract(amount));
-        foundCorespondentAccount.setBalance(foundCorespondentAccount.getBalance().add(amount));
+        foundCorrespondentAccount.setBalance(foundCorrespondentAccount.getBalance().add(amount));
 
         accountRepository.save(foundAccount);
-        accountRepository.save(foundCorespondentAccount);
+        accountRepository.save(foundCorrespondentAccount);
 
         thisAccount.setBalance(foundAccount.getBalance());
-        corespondentAccount.setBalance(foundCorespondentAccount.getBalance());
+        corespondentAccount.setBalance(foundCorrespondentAccount.getBalance());
+
+        Transaction newTransaction = new Transaction();
+        newTransaction.setAccount(foundAccount);
+        newTransaction.setAmount(amount);
+        newTransaction.setOperationType(OperationType.TRANSFER);
+        newTransaction.setCorrespondentAccount(foundCorrespondentAccount);
+        newTransaction.setBalanceAfter(foundAccount.getBalance());
+
+        transactionRepository.save(newTransaction);
+
+        Transaction newCorrespondentTransaction = new Transaction();
+        newCorrespondentTransaction.setAccount(foundCorrespondentAccount);
+        newCorrespondentTransaction.setAmount(amount);
+        newCorrespondentTransaction.setOperationType(OperationType.TRANSFER);
+        newCorrespondentTransaction.setCorrespondentAccount(foundAccount);
+        newCorrespondentTransaction.setBalanceAfter(foundCorrespondentAccount.getBalance());
+
+        transactionRepository.save(newCorrespondentTransaction);
     }
 
     public List<Account> getAllByClient(Client client) {

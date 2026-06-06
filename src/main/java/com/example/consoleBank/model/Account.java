@@ -39,4 +39,16 @@ public class Account {
         this.createdAt = LocalDateTime.now();
     }
 
+    @Override
+    public String toString() {
+        return "Account{" +
+                "version=" + version +
+                ", id=" + id +
+                ", client=" + client +
+                ", number=" + number +
+                ", balance=" + balance +
+                ", createdAt=" + createdAt +
+                ", active=" + active +
+                '}';
+    }
 }

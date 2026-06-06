@@ -21,10 +21,6 @@ public class ClientService {
         this.accountRepository = accountRepository;
     }
 
-    public List<Client> findAll() {
-        return clientRepository.findAll();
-    }
-
     public Optional<Client> findByTelNumber(String telNumber) {
         return clientRepository.findByTelNumber(telNumber);
     }
@@ -76,6 +72,7 @@ public class ClientService {
 
     }
 
+    @Transactional
     public void delete(Client deleteClient) {
 
         Client findClient = clientRepository.findById(deleteClient.getId())

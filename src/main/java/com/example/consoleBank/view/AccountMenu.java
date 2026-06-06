@@ -2,11 +2,15 @@ package com.example.consoleBank.view;
 
 import com.example.consoleBank.model.Account;
 import com.example.consoleBank.model.Client;
+import com.example.consoleBank.model.OperationType;
+import com.example.consoleBank.model.Transaction;
 import com.example.consoleBank.service.AccountService;
+import com.example.consoleBank.service.TransactionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
 
@@ -15,6 +19,7 @@ import java.util.Scanner;
 public class AccountMenu {
 
     private final AccountService accountService;
+    private final TransactionService transactionService;
     private final Scanner scanner = new Scanner(System.in);
 
     public void showMainAccountMenu(Client thisClient) {
@@ -62,9 +67,9 @@ public class AccountMenu {
             int choice = getIntInput();
 
             if(choice == 1){
-                showDepositWithdrawMenu(thisAccount, "deposit");
+                showDepositWithdrawMenu(thisAccount, OperationType.DEPOSIT);
             } else if (choice == 2) {
-                showDepositWithdrawMenu(thisAccount, "withdraw");
+                showDepositWithdrawMenu(thisAccount, OperationType.WITHDRAW);
             } else if (choice == 3) {
                 showInnerTransferMenu(thisAccount, thisClient);
             } else if (choice == 4) {
@@ -86,7 +91,7 @@ public class AccountMenu {
 
     }
 
-    private void showDepositWithdrawMenu(Account thisAccount, String operationType) {
+    private void showDepositWithdrawMenu(Account thisAccount, OperationType operationType) {
 
         System.out.println("Введите сумму");
 
@@ -107,7 +112,7 @@ public class AccountMenu {
 
         BigDecimal newBalance;
 
-        if(operationType.equals("deposit")) {
+        if(operationType.equals(OperationType.DEPOSIT)) {
             newBalance = thisAccount.getBalance().add(depositWithdrawAmount);
 
         }else {
@@ -122,6 +127,15 @@ public class AccountMenu {
 
         try {
             accountService.update(thisAccount);
+
+            Transaction newTransaction = new Transaction();
+            newTransaction.setAccount(thisAccount);
+            newTransaction.setAmount(depositWithdrawAmount);
+            newTransaction.setOperationType(operationType);
+            newTransaction.setBalanceAfter(thisAccount.getBalance());
+
+            transactionService.create(newTransaction);
+
             System.out.println("Баланс счета изменен. Текущий баланс " + thisAccount.getBalance());
         } catch (IllegalStateException e) {
             System.out.println("Не удалось изменить баланс счета. " + e.getMessage());
@@ -136,6 +150,7 @@ public class AccountMenu {
 
         System.out.println("===ВЫБЕРИТЕ СЧЕТ===");
 
+        HashMap<Integer, Account> accountMap = new HashMap<>();
 
         Integer i = 1;
         for (Account account: accountList) {
@@ -145,6 +160,7 @@ public class AccountMenu {
             }
             System.out.println(i + ". " + account.getNumber());
 
+            accountMap.put(i, account);
             i++;
         }
 
@@ -154,7 +170,7 @@ public class AccountMenu {
 
         if(choice > 0 && choice < i) {
 
-            Account corespondentAccount = accountList.get(choice - 1);
+            Account correspondentAccount = accountMap.get(choice);
 
             System.out.println("Введите сумму");
 
@@ -174,7 +190,8 @@ public class AccountMenu {
             }
 
             try {
-                accountService.transfer(thisAccount, corespondentAccount, depositWithdrawAmount);
+                accountService.transfer(thisAccount, correspondentAccount, depositWithdrawAmount);
+
                 System.out.println("Перевод успешно выполнен");
             } catch (IllegalStateException e) {
                 System.out.println("Не удалось выполнить перевод средств. " + e.getMessage());
@@ -195,10 +212,10 @@ public class AccountMenu {
 
         Long number = getLongInput();
 
-        Account corespondentAccount;
+        Account correspondentAccount;
 
         try {
-            corespondentAccount = accountService.getByNumber(number);
+            correspondentAccount = accountService.getByNumber(number);
         } catch (IllegalStateException e) {
             System.out.println(e.getMessage());
             return;
@@ -222,7 +239,8 @@ public class AccountMenu {
         }
 
         try {
-            accountService.transfer(thisAccount, corespondentAccount, depositWithdrawAmount);
+            accountService.transfer(thisAccount, correspondentAccount, depositWithdrawAmount);
+
             System.out.println("Перевод успешно выполнен");
         } catch (IllegalStateException e) {
             System.out.println("Не удалось выполнить перевод средств. " + e.getMessage());
