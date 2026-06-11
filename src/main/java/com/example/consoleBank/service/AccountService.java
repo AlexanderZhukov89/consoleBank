@@ -7,6 +7,7 @@ import com.example.consoleBank.model.Transaction;
 import com.example.consoleBank.repository.AccountRepository;
 import com.example.consoleBank.repository.TransactionRepository;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -14,15 +15,11 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class AccountService {
 
     private final AccountRepository accountRepository;
     private final TransactionRepository transactionRepository;
-
-    public AccountService(AccountRepository accountRepository, TransactionRepository transactionRepository) {
-        this.accountRepository = accountRepository;
-        this.transactionRepository = transactionRepository;
-    }
 
     @Transactional
     public Account create(Account account) {
@@ -56,19 +53,27 @@ public class AccountService {
 
         BigDecimal accountBalance = findAccount.getBalance();
 
-        if (accountBalance.doubleValue() > 0){
-            throw new IllegalStateException("Счет имеет на нулевой баланс. Удаление невозможно");
+        if (accountBalance.compareTo(BigDecimal.ZERO) > 0){
+            throw new IllegalStateException("Счет имеет ненулевой баланс. Удаление невозможно");
         }
 
         accountRepository.delete(findAccount);
     }
 
     @Transactional
-    public void transfer(Account thisAccount, Account corespondentAccount, BigDecimal amount) {
+    public void transfer(Account thisAccount, Account correspondentAccount, BigDecimal amount) {
+
+        if (amount == null) {
+            throw new IllegalStateException("Сумма не может быть null");
+        }
+
+        if (amount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalStateException("Сумма должна быть больше 0");
+        }
 
         Account foundAccount = accountRepository.findById(thisAccount.getId())
                 .orElseThrow(() -> new IllegalStateException("Счет отправителя не найден"));
-        Account foundCorrespondentAccount = accountRepository.findById(corespondentAccount.getId())
+        Account foundCorrespondentAccount = accountRepository.findById(correspondentAccount.getId())
                 .orElseThrow(() -> new IllegalStateException("Счет получателя не найден"));
 
 
@@ -83,7 +88,7 @@ public class AccountService {
         accountRepository.save(foundCorrespondentAccount);
 
         thisAccount.setBalance(foundAccount.getBalance());
-        corespondentAccount.setBalance(foundCorrespondentAccount.getBalance());
+        correspondentAccount.setBalance(foundCorrespondentAccount.getBalance());
 
         Transaction newTransaction = new Transaction();
         newTransaction.setAccount(foundAccount);

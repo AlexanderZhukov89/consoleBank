@@ -20,7 +20,7 @@ public class AccountMenu {
 
     private final AccountService accountService;
     private final TransactionService transactionService;
-    private final Scanner scanner = new Scanner(System.in);
+    private final Scanner scanner;
 
     public void showMainAccountMenu(Client thisClient) {
 
@@ -93,22 +93,7 @@ public class AccountMenu {
 
     private void showDepositWithdrawMenu(Account thisAccount, OperationType operationType) {
 
-        System.out.println("Введите сумму");
-
-        String amountStr = scanner.nextLine().trim();
-        BigDecimal depositWithdrawAmount;
-
-        try {
-            depositWithdrawAmount = new BigDecimal(amountStr);
-        } catch (NumberFormatException e) {
-            System.out.println("Неверный формат суммы");
-            return;
-        }
-
-        if(depositWithdrawAmount.compareTo(BigDecimal.ZERO) <= 0) {
-            System.out.println("Сумма должна быть больше 0");
-            return;
-        }
+        BigDecimal depositWithdrawAmount = getAmountInput();
 
         BigDecimal newBalance;
 
@@ -172,22 +157,7 @@ public class AccountMenu {
 
             Account correspondentAccount = accountMap.get(choice);
 
-            System.out.println("Введите сумму");
-
-            String amountStr = scanner.nextLine().trim();
-            BigDecimal depositWithdrawAmount;
-
-            try {
-                depositWithdrawAmount = new BigDecimal(amountStr);
-            } catch (NumberFormatException e) {
-                System.out.println("Неверный формат суммы");
-                return;
-            }
-
-            if(depositWithdrawAmount.compareTo(BigDecimal.ZERO) <= 0) {
-                System.out.println("Сумма должна быть больше 0");
-                return;
-            }
+            BigDecimal depositWithdrawAmount = getAmountInput();
 
             try {
                 accountService.transfer(thisAccount, correspondentAccount, depositWithdrawAmount);
@@ -216,27 +186,18 @@ public class AccountMenu {
 
         try {
             correspondentAccount = accountService.getByNumber(number);
+
+            if (correspondentAccount.getId().equals(thisAccount.getId())){
+                System.out.println("Нельзя выполнить перевод на тот же счет");
+                return;
+            }
+
         } catch (IllegalStateException e) {
             System.out.println(e.getMessage());
             return;
         }
 
-        System.out.println("Введите сумму");
-
-        String amountStr = scanner.nextLine().trim();
-        BigDecimal depositWithdrawAmount;
-
-        try {
-            depositWithdrawAmount = new BigDecimal(amountStr);
-        } catch (NumberFormatException e) {
-            System.out.println("Неверный формат суммы");
-            return;
-        }
-
-        if (depositWithdrawAmount.compareTo(BigDecimal.ZERO) <= 0) {
-            System.out.println("Сумма должна быть больше 0");
-            return;
-        }
+        BigDecimal depositWithdrawAmount = getAmountInput();
 
         try {
             accountService.transfer(thisAccount, correspondentAccount, depositWithdrawAmount);
@@ -252,12 +213,10 @@ public class AccountMenu {
 
     private boolean deleteAccount(Account thisAccount) {
 
-        if(thisAccount.getBalance().doubleValue() > 0) {
+        if(thisAccount.getBalance().compareTo(BigDecimal.ZERO) > 0) {
             System.out.println("На счете есть средства, удаление не возможно.");
             return false;
         }
-
-
 
         System.out.println("Уверены, что хотите удалить счет " + thisAccount.getNumber());
         System.out.println("1. Да");
@@ -314,5 +273,28 @@ public class AccountMenu {
         }
     }
 
+    private BigDecimal getAmountInput() {
+
+      while (true) {
+
+          System.out.println("Введите сумму");
+
+          String amountStr = scanner.nextLine().trim();
+          BigDecimal depositWithdrawAmount;
+
+          try {
+              depositWithdrawAmount = new BigDecimal(amountStr);
+              if (depositWithdrawAmount.compareTo(BigDecimal.ZERO) >= 0) {
+                  return depositWithdrawAmount;
+              }else {
+                  System.out.println("Введена неверная сумма");
+              }
+
+          } catch (NumberFormatException e) {
+              System.out.println("Неверный формат суммы");
+          }
+
+      }
+    }
 
 }

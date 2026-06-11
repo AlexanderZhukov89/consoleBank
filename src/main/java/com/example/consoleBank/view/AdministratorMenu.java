@@ -17,7 +17,7 @@ public class AdministratorMenu {
 
     private final ClientService clientService;
 
-    private final Scanner scanner = new Scanner(System.in);
+    private final Scanner scanner;
 
 
     public void showAdministratorMenu() {

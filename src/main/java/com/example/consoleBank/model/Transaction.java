@@ -29,7 +29,7 @@ public class Transaction {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "correspondent_account_id")
-    private Account CorrespondentAccount;
+    private Account correspondentAccount;
 
     @Column(name = "created_at", nullable = false)
     private OffsetDateTime createdAt;

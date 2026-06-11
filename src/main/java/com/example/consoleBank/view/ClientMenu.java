@@ -18,8 +18,7 @@ public class ClientMenu {
     private final AccountService accountService;
     private final AccountMenu accountMenu;
 
-    private final Scanner scanner = new Scanner(System.in);
-
+    private final Scanner scanner;
 
     public void showClientMenu() {
 
