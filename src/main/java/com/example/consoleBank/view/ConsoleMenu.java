@@ -11,22 +11,23 @@ import java.util.Scanner;
 @Component
 @RequiredArgsConstructor
 @Profile("!test")
-public class ConsoleMenu implements CommandLineRunner {
+//public class ConsoleMenu implements CommandLineRunner {
+public class ConsoleMenu {
 
     private final AdministratorMenu administratorMenu;
     private final ClientMenu clientMenu;
     private final Scanner scanner;
 
 
-    @Override
-    public void run(@Nonnull String... args) {
-        try {
-            showMainMenu();
-        } finally {
-            scanner.close();
-        }
-
-    }
+//    @Override
+//    public void run(@Nonnull String... args) {
+//        try {
+//            showMainMenu();
+//        } finally {
+//            scanner.close();
+//        }
+//
+//    }
 
     private void showMainMenu() {
 

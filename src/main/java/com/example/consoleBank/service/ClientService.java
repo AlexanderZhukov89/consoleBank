@@ -94,5 +94,14 @@ public class ClientService {
 
     }
 
+    public List<Client> findAll() {
+        return clientRepository.findAll();
+    }
+
+    public Client getById(Long id) {
+        return clientRepository.findById(id)
+                .orElseThrow(() -> new IllegalStateException("Клиента с таким ID не найден"));
+    }
+
 
 }

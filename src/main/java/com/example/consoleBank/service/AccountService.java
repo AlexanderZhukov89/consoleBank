@@ -54,10 +54,71 @@ public class AccountService {
         BigDecimal accountBalance = findAccount.getBalance();
 
         if (accountBalance.compareTo(BigDecimal.ZERO) > 0){
-            throw new IllegalStateException("Счет имеет ненулевой баланс. Удаление невозможно");
+            throw new IllegalStateException("Счет имеет ненулевой баланс. Удаление невозможно.");
         }
 
         accountRepository.delete(findAccount);
+    }
+
+    @Transactional
+    public void disable(Account account) {
+
+        Account findAccount = accountRepository.findById(account.getId())
+                .orElseThrow(() -> new IllegalStateException("Счет с таким ID не найден"));
+
+        BigDecimal accountBalance = findAccount.getBalance();
+
+        if (accountBalance.compareTo(BigDecimal.ZERO) > 0){
+            throw new IllegalStateException("Счет имеет ненулевой баланс. Закрытие невозможно.");
+        }
+
+        findAccount.setActive(false);
+
+        accountRepository.save(findAccount);
+    }
+
+    @Transactional
+    public void deposit(Account thisAccount, BigDecimal amount) {
+
+        if(amount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalStateException("Сумма должна быть больше ноля");
+        }
+
+        thisAccount.setBalance(thisAccount.getBalance().add(amount));
+        update(thisAccount);
+
+        Transaction newTransaction = new Transaction();
+        newTransaction.setAccount(thisAccount);
+        newTransaction.setAmount(amount);
+        newTransaction.setOperationType(OperationType.DEPOSIT);
+        newTransaction.setBalanceAfter(thisAccount.getBalance());
+
+        transactionRepository.save(newTransaction);
+
+    }
+
+    @Transactional
+    public void withdraw(Account thisAccount, BigDecimal amount) {
+
+        if(amount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalStateException("Сумма должна быть больше ноля");
+        }
+
+        if (thisAccount.getBalance().compareTo(amount) < 0) {
+            throw new IllegalStateException("Недостаточно средств");
+        }
+
+        thisAccount.setBalance(thisAccount.getBalance().subtract(amount));
+        update(thisAccount);
+
+        Transaction newTransaction = new Transaction();
+        newTransaction.setAccount(thisAccount);
+        newTransaction.setAmount(amount);
+        newTransaction.setOperationType(OperationType.WITHDRAW);
+        newTransaction.setBalanceAfter(thisAccount.getBalance());
+
+        transactionRepository.save(newTransaction);
+
     }
 
     @Transactional
@@ -109,6 +170,10 @@ public class AccountService {
         transactionRepository.save(newCorrespondentTransaction);
     }
 
+    public List<Account> findAll() {
+        return accountRepository.findAll();
+    }
+
     public List<Account> getAllByClient(Client client) {
         return accountRepository.findByClientAndActiveTrue(client);
     }
@@ -117,6 +182,11 @@ public class AccountService {
         return accountRepository.findByNumber(number)
                 .orElseThrow(() -> new IllegalStateException("Счет с таким номером не найден"));
 
+    }
+
+    public Account getById(Long id) {
+        return accountRepository.findById(id)
+                .orElseThrow(() -> new IllegalStateException("Счет с таким id не найден"));
     }
 
     private Long getNewAccountNumber() {
