@@ -31,6 +31,12 @@ public class Client {
     public Client() {
     }
 
+    public Client(String name, String email, String telNumber) {
+        this.name = name;
+        this.email = email;
+        this.telNumber = telNumber;
+    }
+
     static public boolean isValidTelNumber(String telNumber) {
         return telNumberPattern.matcher(telNumber).matches();
     }
@@ -60,7 +66,7 @@ public class Client {
         }
 
         if(telNumber == null || !isValidTelNumber(telNumber)) {
-            System.out.println("Не указан номер телефона");
+            System.out.println("Неверный формат номера телефона");
             isValid = false;
         }
 
@@ -71,4 +77,6 @@ public class Client {
 
         return isValid;
     }
+
+
 }

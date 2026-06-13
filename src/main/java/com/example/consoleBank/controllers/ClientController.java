@@ -30,12 +30,16 @@ public class ClientController {
     }
 
     @PostMapping
-    public Client create(@RequestBody Client client) {
+    public Client create(@RequestBody ClientDTO clientDTO) {
+
+        Client client = new Client(clientDTO.getName(), clientDTO.getEmail(), clientDTO.getTelNumber());
         return clientService.create(client);
     }
 
     @PutMapping(path = "/{id}")
-    public void update(@PathVariable Long id, @RequestBody Client client) {
+    public void update(@PathVariable Long id, @RequestBody ClientDTO clientDTO) {
+
+        Client client = new Client(clientDTO.getName(), clientDTO.getEmail(), clientDTO.getTelNumber());
         client.setId(id);
         clientService.update(client);
     }

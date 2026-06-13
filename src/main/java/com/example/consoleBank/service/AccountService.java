@@ -1,5 +1,6 @@
 package com.example.consoleBank.service;
 
+import com.example.consoleBank.dto.NotificationMessage;
 import com.example.consoleBank.model.Account;
 import com.example.consoleBank.model.Client;
 import com.example.consoleBank.model.OperationType;
@@ -20,6 +21,8 @@ public class AccountService {
 
     private final AccountRepository accountRepository;
     private final TransactionRepository transactionRepository;
+
+    private final NotificationService notificationService;
 
     @Transactional
     public Account create(Account account) {
@@ -78,7 +81,7 @@ public class AccountService {
     }
 
     @Transactional
-    public void deposit(Account thisAccount, BigDecimal amount) {
+    public Transaction deposit(Account thisAccount, BigDecimal amount) {
 
         if(amount.compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalStateException("Сумма должна быть больше ноля");
@@ -95,10 +98,11 @@ public class AccountService {
 
         transactionRepository.save(newTransaction);
 
+        return newTransaction;
     }
 
     @Transactional
-    public void withdraw(Account thisAccount, BigDecimal amount) {
+    public Transaction withdraw(Account thisAccount, BigDecimal amount) {
 
         if(amount.compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalStateException("Сумма должна быть больше ноля");
@@ -119,10 +123,11 @@ public class AccountService {
 
         transactionRepository.save(newTransaction);
 
+        return newTransaction;
     }
 
     @Transactional
-    public void transfer(Account thisAccount, Account correspondentAccount, BigDecimal amount) {
+    public Transaction transfer(Account thisAccount, Account correspondentAccount, BigDecimal amount) {
 
         if (amount == null) {
             throw new IllegalStateException("Сумма не может быть null");
@@ -168,6 +173,19 @@ public class AccountService {
         newCorrespondentTransaction.setBalanceAfter(foundCorrespondentAccount.getBalance());
 
         transactionRepository.save(newCorrespondentTransaction);
+
+
+        NotificationMessage notificationMessage = NotificationMessage.successTransfer(
+                thisAccount.getClient().getName(),
+                thisAccount.getNumber(),
+                correspondentAccount.getNumber(),
+                amount,
+                foundAccount.getBalance()
+        );
+
+        notificationService.sendNotification(notificationMessage);
+
+        return newTransaction;
     }
 
     public List<Account> findAll() {

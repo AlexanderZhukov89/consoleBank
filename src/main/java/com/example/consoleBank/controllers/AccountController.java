@@ -3,6 +3,7 @@ package com.example.consoleBank.controllers;
 import com.example.consoleBank.dto.AccountDTO;
 import com.example.consoleBank.model.Account;
 import com.example.consoleBank.model.AmountRequest;
+import com.example.consoleBank.model.Transaction;
 import com.example.consoleBank.model.TransferRequest;
 import com.example.consoleBank.service.AccountMapper;
 import com.example.consoleBank.service.AccountService;
@@ -49,29 +50,26 @@ public class AccountController {
     }
 
     @PostMapping(path = "/{id}/deposit")
-    public void deposit(@PathVariable Long id, @RequestBody AmountRequest amountRequest) {
+    public Transaction deposit(@PathVariable Long id, @RequestBody AmountRequest amountRequest) {
 
         Account account = accountService.getById(id);
-        accountService.deposit(account, amountRequest.getAmount());
-
+        return  accountService.deposit(account, amountRequest.getAmount());
     }
 
     @PostMapping(path = "/{id}/withdraw")
-    public void withdraw(@PathVariable Long id, @RequestBody AmountRequest amountRequest) {
+    public Transaction withdraw(@PathVariable Long id, @RequestBody AmountRequest amountRequest) {
 
         Account account = accountService.getById(id);
-        accountService.withdraw(account, amountRequest.getAmount());
-
+        return accountService.withdraw(account, amountRequest.getAmount());
     }
 
     @PostMapping(path = "/{id}/transfer")
-    public void transfer(@PathVariable Long id, @RequestBody TransferRequest transferRequest) {
+    public Transaction transfer(@PathVariable Long id, @RequestBody TransferRequest transferRequest) {
 
         Account account = accountService.getById(id);
         Account correspondentAccount = accountService.getById(transferRequest.getCorrespondentAccountId());
 
-        accountService.transfer(account, correspondentAccount, transferRequest.getAmount());
-
+        return accountService.transfer(account, correspondentAccount, transferRequest.getAmount());
     }
 
 

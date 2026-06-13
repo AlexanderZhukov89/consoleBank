@@ -43,6 +43,9 @@ public class ClientService {
         Client findClient = clientRepository.findById(updateClient.getId())
                 .orElseThrow(() -> new IllegalStateException("Клиент с таким ID не найден"));
 
+        if(!findClient.getTelNumber().equals(updateClient.getTelNumber()) && isPhoneExists(updateClient.getTelNumber())) {
+            throw new IllegalStateException("Клиент с таким телефоном уже существует");
+        }
 
         String updateTelNumber = updateClient.getTelNumber();
         if(updateTelNumber != null) {
@@ -58,7 +61,6 @@ public class ClientService {
         if(updateEmail != null) {
             findClient.setEmail(updateEmail);
         }
-
 
 
         if(findClient.isValid()) {

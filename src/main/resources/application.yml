@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: ConsolBank
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/JavaTest
+    username: postgres
+    password: Djljktq2009
+
+app:
+  kafka:
+    notification-topic: bank-notifications
