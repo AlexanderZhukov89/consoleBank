@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 @Data
 public class AccountDTO {
 
+    private Long clientId;
     private String clientName;
     private Long number;
     private BigDecimal balance;

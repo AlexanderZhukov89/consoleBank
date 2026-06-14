@@ -1,16 +1,13 @@
 package com.example.consoleBank.controllers;
 
 import com.example.consoleBank.dto.AccountDTO;
-import com.example.consoleBank.model.Account;
-import com.example.consoleBank.model.AmountRequest;
-import com.example.consoleBank.model.Transaction;
-import com.example.consoleBank.model.TransferRequest;
+import com.example.consoleBank.model.*;
 import com.example.consoleBank.service.AccountMapper;
 import com.example.consoleBank.service.AccountService;
+import com.example.consoleBank.service.ClientService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -19,6 +16,7 @@ import java.util.List;
 public class AccountController {
 
     private final AccountService accountService;
+    private final ClientService clientService;
 
     private final AccountMapper accountMapper;
 
@@ -37,9 +35,12 @@ public class AccountController {
     }
 
     @PostMapping
-    public Account create(@RequestBody Account account) {
+    public Account create(@RequestBody AccountDTO accountDTO) {
 
-        account.setBalance(BigDecimal.ZERO);
+        Client client = clientService.getById(accountDTO.getClientId());
+
+        Account account = new Account(client);
+
         return accountService.create(account);
     }
 
